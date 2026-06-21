@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import time
 
-# 1. CONFIG DASAR + TEMA FANILLA
+# 1. CONFIG DARK MODE FANILLA
 st.set_page_config(
     page_title="Fanilla AI",
     page_icon="⚡",
@@ -10,45 +10,74 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. CSS CUSTOM BIAR NYAMAN + CAKEP
+# 2. CSS DARK MODE + BUBBLE HITAM
 st.markdown("""
 <style>
-    /* Background Vanilla Cream */
-   .stApp {
-        background-color: #FFF8E7;
+    /* Background Hitam Total */
+  .stApp {
+        background-color: #0A0A0A;
         font-family: 'Inter', sans-serif;
+    }
+
+    /* Semua Teks Jadi Putih */
+    h1, h2, h3, p,.stMarkdown,.stRadio > label,.stCaption {
+        color: #FFFFFF!important;
     }
 
     /* Judul */
     h1 {
-        color: #1F2937;
         text-align: center;
         font-weight: 800;
         padding-top: 1rem;
+        color: #FFFFFF!important;
     }
 
-    /* Bubble Chat */
-   .stChatMessage {
-        background-color: white;
+    /* Caption */
+  .stCaption {
+        text-align: center!important;
+        color: #A3A3A3!important;
+    }
+
+    /* Bubble Chat User = Abu Gelap */
+    [data-testid="stChatMessage"] [data-testid="stChatMessageContent"]:has(div[data-testid="stMarkdownContainer"] > p) {
+        background-color: #262626;
         border-radius: 18px;
         padding: 1rem 1.2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        border: 1px solid #F3F4F6;
+    }
+
+    /* Bubble Chat AI = Hitam + Border Teal */
+    [data-testid="stChatMessage"][data-testid="chat-message-assistant"] [data-testid="stChatMessageContent"] {
+        background-color: #000000!important;
+        border: 1px solid #2DD4BF;
+        border-radius: 18px;
+        padding: 1rem 1.2rem;
+    }
+
+    /* Teks di dalam bubble putih semua */
+    [data-testid="stChatMessageContent"] p {
+        color: #FFFFFF!important;
     }
 
     /* Input Box */
-   .stChatInput {
-        background-color: white;
+  .stChatInput > div {
+        background-color: #1F1F1F;
+        border: 1px solid #333333;
         border-radius: 12px;
+    }
+   .stChatInput input {
+        color: #FFFFFF!important;
     }
 
     /* Tombol Mode */
-   .stRadio > div {
+  .stRadio > div {
         justify-content: center;
         gap: 1rem;
     }
+   .stRadio label span {
+        color: #FFFFFF!important;
+    }
 
-    /* Hide Streamlit Menu */
+    /* Hide Menu Bawaan */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -56,10 +85,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 3. HEADER
-col1, col2, col3 = st.columns([1,2,1])
-with col2:
-    st.title("Fanilla AI")
-    st.caption("Simple Input, Fantastic Output")
+st.title("Fanilla AI")
+st.caption("Simple Input, Fantastic Output")
 
 # 4. MODE VANILLA VS FANTASTIC
 mode = st.radio(
@@ -72,18 +99,17 @@ mode = st.radio(
 # 5. CHAT HISTORY
 if "messages" not in st.session_state:
     st.session_state.messages = []
-    # SAPAAN PERTAMA BIAR GA KOSONG
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "Halo R! Gue Fanilla AI. Tanya apa aja, pilih mode Vanilla buat jawaban cepet atau Fantastic buat detail."
+        "content": "Halo R! Gue Fanilla AI Dark Mode. Tanya apa aja, udah enak diliat kan?"
     })
 
 for msg in st.session_state.messages:
-    avatar = "🤖" if msg["role"] == "assistant" else "🧑‍💻"
+    avatar = "⚡" if msg["role"] == "assistant" else "🧑‍💻"
     with st.chat_message(msg["role"], avatar=avatar):
         st.markdown(msg["content"])
 
-# 6. FUNGSI PANGGIL API ANTI EROR
+# 6. FUNGSI API ANTI EROR
 def get_ai_response(prompt, system_prompt):
     try:
         headers = {
@@ -105,37 +131,32 @@ def get_ai_response(prompt, system_prompt):
             "https://openrouter.ai/api/v1/chat/completions",
             headers=headers,
             json=data,
-            timeout=30 # TIMEOUT 30 DETIK BIAR GA NGGANTUNG
+            timeout=30
         )
 
-        # CEK KALO EROR DARI API
         if response.status_code!= 200:
-            return f"Waduh R, server lagi batuk. Kode eror: {response.status_code}. Coba lagi 10 detik ya."
+            return f"Server lagi error R. Kode: {response.status_code}. Coba lagi bentar ya."
 
         result = response.json()
         return result['choices'][0]['message']['content']
 
     except requests.exceptions.Timeout:
-        return "Sori R, Fanilla lagi mikir kelamaan. Coba pertanyaannya dipersingkat ya."
-    except requests.exceptions.RequestException:
-        return "Koneksi ke otak Fanilla putus R. Cek internet lu atau coba lagi."
+        return "Sori R, kelamaan mikir. Coba pertanyaan lebih pendek."
     except Exception as e:
-        return f"Ada eror tak terduga R: {str(e)}. Screenshot ini kirim ke developer."
+        return f"Eror R: {str(e)}. Cek API Key di Secrets udah bener belum."
 
-# 7. INPUT USER + PROSES
+# 7. INPUT USER
 if prompt := st.chat_input("Ketik pertanyaan lu disini..."):
-    # TAMPILIN PESAN USER
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar="🧑‍💻"):
         st.markdown(prompt)
 
-    # PROSES & TAMPILIN JAWABAN AI
-    with st.chat_message("assistant", avatar="🤖"):
+    with st.chat_message("assistant", avatar="⚡"):
         with st.spinner("Fanilla lagi mikir..."):
             if "Vanilla" in mode:
-                system_prompt = "Kamu adalah Fanilla AI. Jawab super singkat, padat, to-the-point. Maksimal 3 kalimat. Gaya bahasa santai kayak temen."
+                system_prompt = "Kamu Fanilla AI. Jawab super singkat, padat, to-the-point. Maksimal 3 kalimat. Gaya bahasa santai."
             else:
-                system_prompt = "Kamu adalah Fanilla AI. Jawab detail, kasih langkah-langkah konkret, dan contoh nyata. Gaya bahasa santai, bantuin, dan pake format poin biar gampang dibaca."
+                system_prompt = "Kamu Fanilla AI. Jawab detail, pake langkah konkret + contoh. Gaya santai, pake format poin."
 
             reply = get_ai_response(prompt, system_prompt)
             st.markdown(reply)
