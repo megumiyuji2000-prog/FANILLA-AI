@@ -101,7 +101,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "Halo R! Gue Fanilla AI Dark Mode. Tanya apa aja, udah enak diliat kan?"
+        "content": "Halo ! Gue Fanilla AI Dark Mode. Tanya apa aja, udah enak diliat kan?"
     })
 
 for msg in st.session_state.messages:
@@ -119,7 +119,7 @@ def get_ai_response(prompt, system_prompt):
         }
 
         data = {
-            "model": "meta-llama/llama-3.1-8b-instruct:free",
+            ""model": "google/gemma-2-9b-it:free",
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
@@ -141,7 +141,7 @@ def get_ai_response(prompt, system_prompt):
         return result['choices'][0]['message']['content']
 
     except requests.exceptions.Timeout:
-        return "Sori R, kelamaan mikir. Coba pertanyaan lebih pendek."
+        return "Sori , kelamaan mikir. Coba pertanyaan lebih pendek."
     except Exception as e:
         return f"Eror R: {str(e)}. Cek API Key di Secrets udah bener belum."
 
