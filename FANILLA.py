@@ -50,7 +50,7 @@ def get_text_response(prompt):
 def get_image_response(prompt):
     headers = {"Authorization": f"Bearer {st.secrets['API_KEY']}", "Content-Type": "application/json"}
     data = {
-        "model": "stabilityai/stable-diffusion-xl-base-1.0",
+        "model": "stabilityai/sdxl-turbo",
         "prompt": prompt,
     }
     r = requests.post("https://openrouter.ai/api/v1/images/generations", headers=headers, json=data, timeout=60)
