@@ -47,32 +47,33 @@ def get_text_response(prompt):
     r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
     return r.json()['choices'][0]['message']['content']
 def get_image_response(prompt):
-    headers = {"Authorization": f"Bearer {st.secrets['API_KEY']}", "Content-Type": "application/json"}
-    data = {
-        "model": "stabilityai/sdxl-turbo",
-        "prompt": prompt,
-    }
-    r = requests.post("https://openrouter.ai/api/v1/images/generations", headers=headers, json=data, timeout=60)
-    if r.status_code!= 200: return None, f"Eror Gambar: {r.text}. Coba lagi 1 menit ya R."
-    image_url = r.json()['data'][0]['url']
-    return image_url, None
 
-if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
-    st.session_state.messages.append({"role": "user", "content": prompt, "type": "text"})
-    with st.chat_message("user", avatar="🧑‍💻"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant", avatar="⚡"):
-        with st.spinner("Fanilla lagi proses..."):
-            if app_mode == "🎨 Bikin Gambar":
-                image_url, error = get_image_response(prompt)
-                if error:
-                    st.error(error)
-                    st.session_state.messages.append({"role": "assistant", "content": error, "type": "text"})
-                else:
-                    st.image(image_url)
-                    st.session_state.messages.append({"role": "assistant", "content": image_url, "type": "image"})
+def get_image_response(prompt):
+    try:
+        headers = {"Authorization": f"Bearer {st.secrets['API_KEY']}", "Content-Type": "application/json"}
+        data = {
+            "model": "stabilityai/sdxl-turbo",
+            "prompt": prompt,
+        }
+        r = requests.post("https://openrouter.ai/api/v1/images/generations", headers=headers, json=data, timeout=60)
+        
+        if r.status_code == 200:
+            image_url = r.json()['data'][0]['url']
+            return image_url, None
+        else:
+            return None, f"Server gambar eror {r.status_code}. Coba 1 menit lagi ya R."
+            
+    except Exception as e:
+        return None, f"Koneksi eror: {str(e)}"
+              if app_mode == "🎨 Bikin Gambar":
+            image_url, error = get_image_response(prompt)
+            if error:
+                st.error(error)
+                st.session_state.messages.append({"role": "assistant", "content": error, "type": "text"})
             else:
-                reply = get_text_response(prompt)
-                st.markdown(reply)
-                st.session_state
+                st.image(image_url)
+                st.session_state.messages.append({"role": "assistant", "content": image_url, "type": "image"})
+        else:
+            reply = get_text_response(prompt)
+            st.markdown(reply)
+            st.session_state.messages.append({"role": "assistant", "content": reply, "type": "text"})
