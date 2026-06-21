@@ -46,7 +46,6 @@ def get_text_response(prompt):
     }
     r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
     return r.json()['choices'][0]['message']['content']
-def get_image_response(prompt):
 
 def get_image_response(prompt):
     try:
