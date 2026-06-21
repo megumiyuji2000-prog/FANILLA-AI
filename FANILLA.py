@@ -64,7 +64,8 @@ def get_image_response(prompt):
             
     except Exception as e:
         return None, f"Koneksi eror: {str(e)}"
-              if app_mode == "🎨 Bikin Gambar":
+             
+      if app_mode == "🎨 Bikin Gambar":
             image_url, error = get_image_response(prompt)
             if error:
                 st.error(error)
