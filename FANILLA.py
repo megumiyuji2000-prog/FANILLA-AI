@@ -41,7 +41,7 @@ for msg in st.session_state.messages:
 def get_text_response(prompt):
     headers = {"Authorization": f"Bearer {st.secrets['API_KEY']}", "Content-Type": "application/json"}
     data = {
-        "model": "google/gemma-4-31b-it:free,
+        "model": "google/gemma-4-31b-it:free",
         "messages": [{"role": "system", "content": "Kamu Fanilla AI. Jawab singkat & santai."}, {"role": "user", "content": prompt}]
     }
     r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
