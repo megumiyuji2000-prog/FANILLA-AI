@@ -46,7 +46,6 @@ def get_text_response(prompt):
     }
     r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
     return r.json()['choices'][0]['message']['content']
-
 def get_image_response(prompt):
     headers = {"Authorization": f"Bearer {st.secrets['API_KEY']}", "Content-Type": "application/json"}
     data = {
@@ -76,4 +75,4 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
             else:
                 reply = get_text_response(prompt)
                 st.markdown(reply)
-                st.session_state.messages.append({"role": "assistant", "content": reply, "type": "text"})
+                st.session_state
