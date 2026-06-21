@@ -119,7 +119,7 @@ def get_ai_response(prompt, system_prompt):
         }
 
         data = {
-            "model": "google/gemma-2-9b-it:free",
+            "model": "google/gemma-4-31b-it:free",
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
