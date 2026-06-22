@@ -41,12 +41,7 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant", avatar="⚡"):
-        with st.spinner("Fanilla lagi proses..."):
-
-                                    # MODE GAMBAR PAKE HUGGINGFACE - 100% GRATIS & STABIL
-            if app_mode == "🎨 Bikin Gambar":
-                try:
-                    API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+        with st.spinner("Fanilla lagi proses..") 
                         # MODE GAMBAR PAKE POLLINATIONS - GA PAKE TOKEN, LANGSUNG JADI
             if app_mode == "🎨 Bikin Gambar":
                 try:
