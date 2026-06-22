@@ -43,9 +43,9 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
     with st.chat_message("assistant", avatar="⚡"):
         with st.spinner("Fanilla lagi proses..") 
                         # MODE GAMBAR PAKE POLLINATIONS - GA PAKE TOKEN, LANGSUNG JADI
-            if app_mode == "🎨 Bikin Gambar":
-                try:
-                    # Pollinations ga butuh API Key. Tinggal tembak URL
+            if app_mode == "🎨 Bikin Gambar": # PAKAI :
+    with st.spinner("Fanilla lagi proses.."): # Aman
+                    
                     prompt_encoded = requests.utils.quote(prompt)
                     image_url = f"https://image.pollinations.ai/prompt/{prompt_encoded}"
                     
