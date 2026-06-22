@@ -47,28 +47,30 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
             if app_mode == "🎨 Bikin Gambar":
                 try:
                     API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
-                    headers = {"Authorization": f"Bearer {st.secrets['HF_TOKEN']}"}
-                    payload = {"inputs": prompt}
+                        # MODE GAMBAR PAKE POLLINATIONS - GA PAKE TOKEN, LANGSUNG JADI
+            if app_mode == "🎨 Bikin Gambar":
+                try:
+                    # Pollinations ga butuh API Key. Tinggal tembak URL
+                    prompt_encoded = requests.utils.quote(prompt)
+                    image_url = f"https://image.pollinations.ai/prompt/{prompt_encoded}"
                     
-                    r = requests.post(API_URL, headers=headers, json=payload, timeout=60)
+                    # Tembak langsung, ambil gambarnya
+                    r = requests.get(image_url, timeout=60)
                     
                     if r.status_code == 200:
                         image = Image.open(BytesIO(r.content))
                         st.image(image)
                         st.session_state.messages.append({"role": "assistant", "content": image, "type": "image"})
-                    elif r.status_code == 503:
-                        eror_msg = "Model lagi loading R, 20 detik lagi coba ulang."
-                        st.error(eror_msg)
-                        st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
                     else:
-                        eror_msg = f"HuggingFace eror {r.status_code}. Coba lagi R."
+                        eror_msg = f"Server gambar lagi penuh {r.status_code}. Coba 10 detik lagi R."
                         st.error(eror_msg)
                         st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
 
                 except Exception as e:
-                    eror_msg = f"Gagal konek: {str(e)}"
+                    eror_msg = f"Internet lu/Fanilla lemot: {str(e)}"
                     st.error(eror_msg)
                     st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
+            
             # MODE CHAT TETEP PAKE OPENROUTER
             else:
                 try:
