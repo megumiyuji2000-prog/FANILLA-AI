@@ -43,32 +43,32 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
     with st.chat_message("assistant", avatar="⚡"):
         with st.spinner("Fanilla lagi proses..."):
 
-                        # MODE GAMBAR PAKE IMAGEN 3 - YANG BENERAN STABIL
+                                    # MODE GAMBAR PAKE HUGGINGFACE - 100% GRATIS & STABIL
             if app_mode == "🎨 Bikin Gambar":
                 try:
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key={st.secrets['GEMINI_KEY']}"
-                    headers = {"Content-Type": "application/json"}
-                    data = {
-                        "instances": [{"prompt": prompt}],
-                        "parameters": {"sampleCount": 1}
-                    }
-                    r = requests.post(url, headers=headers, json=data, timeout=60)
-
+                    API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+                    headers = {"Authorization": f"Bearer {st.secrets['HF_TOKEN']}"}
+                    payload = {"inputs": prompt}
+                    
+                    r = requests.post(API_URL, headers=headers, json=payload, timeout=60)
+                    
                     if r.status_code == 200:
-                        img_b64 = r.json()['predictions'][0]['bytesBase64Encoded']
-                        image = Image.open(BytesIO(base64.b64decode(img_b64)))
+                        image = Image.open(BytesIO(r.content))
                         st.image(image)
                         st.session_state.messages.append({"role": "assistant", "content": image, "type": "image"})
+                    elif r.status_code == 503:
+                        eror_msg = "Model lagi loading R, 20 detik lagi coba ulang."
+                        st.error(eror_msg)
+                        st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
                     else:
-                        eror_msg = f"Imagen eror {r.status_code}: {r.json().get('error', {}).get('message', 'Coba lagi R')}"
+                        eror_msg = f"HuggingFace eror {r.status_code}. Coba lagi R."
                         st.error(eror_msg)
                         st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
 
                 except Exception as e:
-                    eror_msg = f"Gagal total R: {str(e)}"
+                    eror_msg = f"Gagal konek: {str(e)}"
                     st.error(eror_msg)
-                    st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"}).messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
-
+                    st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
             # MODE CHAT TETEP PAKE OPENROUTER
             else:
                 try:
