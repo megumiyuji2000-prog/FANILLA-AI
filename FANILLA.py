@@ -14,7 +14,7 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
- .stApp {
+.stApp {
         background-color: #131314;
         font-family: 'Google Sans', sans-serif;
     }
@@ -32,23 +32,23 @@ st.markdown("""
         color: #9AA0A6;
         margin-bottom: 1.5rem;
     }
- .stRadio > div {
+.stRadio > div {
         flex-direction: row;
         justify-content: center;
         gap: 8px;
         margin-bottom: 1rem;
     }
- .stRadio > div > label {
+.stRadio > div > label {
         background-color: #1E1F20;
         padding: 8px 16px;
         border-radius: 8px;
         border: 1px solid #444746;
     }
- .stRadio > div > label:has(input:checked) {
+.stRadio > div > label:has(input:checked) {
         background-color: #283142;
         border: 1px solid #8AB4F8;
     }
- .stChatMessage {
+.stChatMessage {
         background-color: #1E1F20;
         border-radius: 20px;
         padding: 16px 20px;
@@ -58,31 +58,31 @@ st.markdown("""
     [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
         background-color: #283142;
     }
- .stChatInputContainer {
+.stChatInputContainer {
         background-color: #1E1F20;
         border: 1px solid #444746;
         border-radius: 28px;
         padding: 6px 6px 6px 20px;
     }
- .stChatInputContainer:focus-within {
+.stChatInputContainer:focus-within {
         border: 1px solid #8AB4F8;
     }
- .stFileUploader {
+.stFileUploader {
         padding-bottom: 10px;
    }
- .stFileUploader > div > button {
+.stFileUploader > div > button {
         background-color: #1E1F20;
         border: 1px solid #444746;
         color: #E3E3E3;
    }
- .stDownloadButton > button {
+.stDownloadButton > button {
         background-color: #283142;
         color: #8AB4F8;
         border: 1px solid #8AB4F8;
         border-radius: 12px;
         width: 100%;
    }
- .stDownloadButton > button:hover {
+.stDownloadButton > button:hover {
         background-color: #8AB4F8;
         color: #131314;
    }
@@ -91,7 +91,7 @@ st.markdown("""
 
 # 2. HEADER
 st.title("⚡ Fanilla AI")
-st.caption("Ditenagai Gemma via OpenRouter")
+st.caption("Ditenagai Gemma 4 via OpenRouter")
 
 # 3. INISIALISASI
 if "messages" not in st.session_state:
@@ -176,13 +176,13 @@ if prompt or uploaded_file:
                         "Content-Type": "application/json"
                     }
 
-                    # SOLUSI 1 & 3: KOMPRES + PILIH MODEL OTOMATIS R
+                    # PILIH MODEL OTOMATIS - NAMA UDAH BENER R
                     if uploaded_file is not None:
                         # Kompres gambar biar ga kena limit
                         img = Image.open(uploaded_file)
-                        img.thumbnail((768, 768)) # Resize max 768px
+                        img.thumbnail((768, 768))
                         buffer = BytesIO()
-                        img.save(buffer, format="JPEG", quality=75) # Kompres 75%
+                        img.save(buffer, format="JPEG", quality=75)
                         img_bytes = buffer.getvalue()
                         img_base64 = base64.b64encode(img_bytes).decode()
 
@@ -193,10 +193,10 @@ if prompt or uploaded_file:
                                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}}
                             ]
                         }]
-                        model_pake = "google/gemma-4-31b-it:free" # Pake yang mahal khusus vision
+                        model_pake = "google/gemma-4-31b-it:free" # VISION PAKE 31B
                     else:
                         messages_api = [{"role": "user", "content": prompt}]
-                        model_pake = "google/gemma-2-9b-it:free" # Pake yang murah buat chat
+                        model_pake = "google/gemma-4-26b-a4b-it:free" # CHAT PAKE 26B A4B
 
                     data = {
                         "model": model_pake,
@@ -211,7 +211,9 @@ if prompt or uploaded_file:
 
                 except requests.exceptions.HTTPError as e:
                     if e.response.status_code == 429:
-                        eror = "Fanilla lagi istirahat dulu R 😴 Limit API vision abis. Tunggu 1-2 menit ya kalo upload gambar."
+                        eror = "Fanilla lagi istirahat dulu R 😴 Limit API abis. Tunggu 1-2 menit ya."
+                    elif e.response.status_code == 404:
+                        eror = "Fanilla error 404 R. Modelnya ga ketemu. Cek lagi nama model di OpenRouter."
                     else:
                         eror = f"Fanilla eror: {str(e)}"
                     st.error(eror)
