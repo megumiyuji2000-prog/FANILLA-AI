@@ -47,7 +47,7 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
             # KALO MODE GAMBAR
             if app_mode == "🎨 Bikin Gambar":
                 try:
-                    data = {"model": "stabilityai/sdxl-turbo", "prompt": prompt}
+                    data = {"model": "google/gemini-2.5-flash-image", "prompt": prompt}
                     r = requests.post("https://openrouter.ai/api/v1/images/generations", headers=headers, json=data, timeout=60)
                     if r.status_code == 200:
                         image_url = r.json()['data'][0]['url']
