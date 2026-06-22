@@ -43,30 +43,31 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
     with st.chat_message("assistant", avatar="⚡"):
         with st.spinner("Fanilla lagi proses..."):
 
-            # MODE GAMBAR PAKE GEMINI NANO BANANA
+                        # MODE GAMBAR PAKE IMAGEN 3 - YANG BENERAN STABIL
             if app_mode == "🎨 Bikin Gambar":
                 try:
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key={st.secrets['GEMINI_KEY']}"
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key={st.secrets['GEMINI_KEY']}"
                     headers = {"Content-Type": "application/json"}
                     data = {
-                        "contents": [{"parts": [{"text": f"Buatkan gambar: {prompt}, kualitas HD, detail"}]}]
+                        "instances": [{"prompt": prompt}],
+                        "parameters": {"sampleCount": 1}
                     }
                     r = requests.post(url, headers=headers, json=data, timeout=60)
 
                     if r.status_code == 200:
-                        img_data = r.json()['candidates'][0]['content']['parts'][0]['inlineData']['data']
-                        image = Image.open(BytesIO(base64.b64decode(img_data)))
+                        img_b64 = r.json()['predictions'][0]['bytesBase64Encoded']
+                        image = Image.open(BytesIO(base64.b64decode(img_b64)))
                         st.image(image)
                         st.session_state.messages.append({"role": "assistant", "content": image, "type": "image"})
                     else:
-                        eror_msg = f"Gemini eror {r.status_code}: {r.text}"
+                        eror_msg = f"Imagen eror {r.status_code}: {r.json().get('error', {}).get('message', 'Coba lagi R')}"
                         st.error(eror_msg)
                         st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
 
                 except Exception as e:
-                    eror_msg = f"Gagal bikin gambar: {str(e)}"
+                    eror_msg = f"Gagal total R: {str(e)}"
                     st.error(eror_msg)
-                    st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
+                    st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"}).messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
 
             # MODE CHAT TETEP PAKE OPENROUTER
             else:
