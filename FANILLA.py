@@ -47,7 +47,7 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
                         "Content-Type": "application/json"
                     }
                     data = {
-                        "model": "google/gemma-2-27b-it:free",
+                        "model": "google/gemma-4-31b-it:free",
                         "messages": [{"role": "user", "content": prompt}]
                     }
                     r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=60)
