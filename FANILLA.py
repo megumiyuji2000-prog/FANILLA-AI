@@ -46,7 +46,7 @@ if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
             # MODE GAMBAR PAKE GEMINI NANO BANANA
             if app_mode == "🎨 Bikin Gambar":
                 try:
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key={st.secrets['GEMINI_KEY']}"
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key={st.secrets['GEMINI_KEY']}"
                     headers = {"Content-Type": "application/json"}
                     data = {
                         "contents": [{"parts": [{"text": f"Buatkan gambar: {prompt}, kualitas HD, detail"}]}]
