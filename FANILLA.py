@@ -1,5 +1,8 @@
 import streamlit as st
 import requests
+import base64
+from io import BytesIO
+from PIL import Image
 
 st.set_page_config(page_title="Fanilla AI", page_icon="⚡", layout="centered")
 
@@ -13,18 +16,17 @@ h1, p,.stMarkdown {color: #FFFFFF!important;}
 """, unsafe_allow_html=True)
 
 st.title("Fanilla AI")
-st.caption("Simple Input, Fantastic Output + Gambar")
+st.caption("Simple Input, Fantastic Output + Gambar by Gemini 🍌")
 
 app_mode = st.radio("**Pilih Mode:**", ["💬 Chat", "🎨 Bikin Gambar"], horizontal=True)
 
-# INISIALISASI + SAMBUTAN CUMA 1X
+# SAMBUTAN 1X DOANG
 if "messages" not in st.session_state:
     st.session_state.messages = []
     with st.chat_message("assistant", avatar="⚡"):
         st.markdown("**Selamat datang, Anda bebas melakukan apapun di sini**")
         st.markdown("**Note: mohon maaf bila gambar yang Fanilla buat kurang memuaskan** 🙏")
 
-# TAMPILIN CHAT LAMA
 for msg in st.session_state.messages:
     avatar = "⚡" if msg["role"] == "assistant" else "🧑‍💻"
     with st.chat_message(msg["role"], avatar=avatar):
@@ -33,38 +35,43 @@ for msg in st.session_state.messages:
         else:
             st.markdown(msg["content"])
 
-# INPUT USER
 if prompt := st.chat_input("Ketik pesan atau deskripsi gambar..."):
     st.session_state.messages.append({"role": "user", "content": prompt, "type": "text"})
     with st.chat_message("user", avatar="🧑‍💻"):
         st.markdown(prompt)
 
-    # PROSES JAWABAN FANILLA - SEMUA DISINI, GA PISAH2
     with st.chat_message("assistant", avatar="⚡"):
-        with st.spinner("Fanilla lagi mikir..."):
-            headers = {"Authorization": f"Bearer {st.secrets['API_KEY']}", "Content-Type": "application/json"}
+        with st.spinner("Fanilla lagi proses..."):
 
-            # KALO MODE GAMBAR
+            # MODE GAMBAR PAKE GEMINI NANO BANANA
             if app_mode == "🎨 Bikin Gambar":
                 try:
-                    data = {"model": "google/gemini-2.5-flash-image", "prompt": prompt}
-                    r = requests.post("https://openrouter.ai/api/v1/images/generations", headers=headers, json=data, timeout=60)
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key={st.secrets['GEMINI_KEY']}"
+                    headers = {"Content-Type": "application/json"}
+                    data = {
+                        "contents": [{"parts": [{"text": f"Buatkan gambar: {prompt}, kualitas HD, detail"}]}]
+                    }
+                    r = requests.post(url, headers=headers, json=data, timeout=60)
+
                     if r.status_code == 200:
-                        image_url = r.json()['data'][0]['url']
-                        st.image(image_url)
-                        st.session_state.messages.append({"role": "assistant", "content": image_url, "type": "image"})
+                        img_data = r.json()['candidates'][0]['content']['parts'][0]['inlineData']['data']
+                        image = Image.open(BytesIO(base64.b64decode(img_data)))
+                        st.image(image)
+                        st.session_state.messages.append({"role": "assistant", "content": image, "type": "image"})
                     else:
-                        eror_msg = f"Server gambar lagi eror {r.status_code}. Coba 1 menit lagi R."
+                        eror_msg = f"Gemini eror {r.status_code}: {r.text}"
                         st.error(eror_msg)
                         st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
+
                 except Exception as e:
-                    eror_msg = f"Koneksi gagal: {str(e)}"
+                    eror_msg = f"Gagal bikin gambar: {str(e)}"
                     st.error(eror_msg)
                     st.session_state.messages.append({"role": "assistant", "content": eror_msg, "type": "text"})
 
-            # KALO MODE CHAT
+            # MODE CHAT TETEP PAKE OPENROUTER
             else:
                 try:
+                    headers = {"Authorization": f"Bearer {st.secrets['API_KEY']}", "Content-Type": "application/json"}
                     data = {
                         "model": "google/gemma-4-31b-it:free",
                         "messages": [{"role": "system", "content": "Kamu Fanilla AI. Jawab singkat & santai."}, {"role": "user", "content": prompt}]
